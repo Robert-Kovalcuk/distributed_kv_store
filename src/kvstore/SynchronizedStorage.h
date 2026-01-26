@@ -17,10 +17,14 @@ namespace storage {
     using std::string_view;
 
     class SynchronizedStorage final {
-        IStorage m_storage;
+        IStorage& m_storage;
         std::mutex m_storage_mutex;
 
     public:
+        explicit SynchronizedStorage(IStorage &m_storage)
+            : m_storage(m_storage) {
+        }
+
         [[nodiscard]] std::optional<string> get(string_view key) ;
         bool set(string_view key, string_view value) ;
         bool remove(string_view key) ;

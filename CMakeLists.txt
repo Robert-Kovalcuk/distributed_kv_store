@@ -56,6 +56,8 @@ add_executable(DistributedKV src/main.cpp
         src/kvstore/StorageCore.cpp
         src/kvstore/StorageCore.h
         src/kvstore/IStorage.h
+        src/server/ServerService.cpp
+        src/server/ServerService.h
 )
 target_link_libraries(DistributedKV PRIVATE kv_proto)
 

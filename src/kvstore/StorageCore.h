@@ -22,9 +22,9 @@ namespace storage {
     public:
         StorageCore() = default;
 
-        [[nodiscard]] std::optional<std::string> get(key_view key) override;
+        [[nodiscard]] std::optional<value_t> get(key_view key) override;
         bool set(key_view key, value_view value) override;
-        bool remove(value_view key) override;
+        bool remove(key_view key) override;
     };
 } // storage
 
