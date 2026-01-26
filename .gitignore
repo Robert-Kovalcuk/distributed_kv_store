@@ -1,0 +1,47 @@
+# CMake build directories
+cmake-build-*/
+build/
+out/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+Makefile
+
+# vcpkg
+vcpkg_installed/
+
+# Generated protobuf/gRPC files
+generated/
+
+# IDE - JetBrains (CLion, etc.)
+.idea/
+
+# IDE - Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# C++ compiled output
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.exp
+*.pdb
+*.ilk
+
+# OS specific
+.DS_Store
+Thumbs.db
