@@ -13,8 +13,9 @@ int main() {
     const std::string server_address = "127.0.0.1";
 
     storage::StorageCore storage_core{};
-    const auto storage = std::make_shared<storage::StorageCore>(storage_core);
-    ServerService service{storage};
+    const auto sync_storage = std::make_shared<storage::SynchronizedStorage>(storage_core);
+
+    ServerService service{sync_storage};
 
     grpc::ServerBuilder server_builder;
     server_builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());

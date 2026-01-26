@@ -7,13 +7,13 @@
 
 #include "kv.grpc.pb.h"
 #include "kv.pb.h"
-#include "../kvstore/IStorage.h"
+#include "../kvstore/SynchronizedStorage.h"
 
 class ServerService final : public kv::KV::Service {
-    const std::shared_ptr<IStorage> m_storage;
+    const std::shared_ptr<storage::SynchronizedStorage> m_storage;
 
 public:
-    explicit ServerService(const std::shared_ptr<IStorage> &m_storage)
+    explicit ServerService(const std::shared_ptr<storage::SynchronizedStorage> &m_storage)
         : m_storage(m_storage) {
     }
 
