@@ -5,20 +5,31 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# =======================
+# PACKAGES
+# =======================
 find_package(gRPC CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
+find_package(GTest CONFIG REQUIRED)
+
+# =======================
+# CTEST
+# =======================
+include(CTest)
+enable_testing()
 
 # =======================
 # PROTO / gRPC CODEGEN
 # =======================
-set(PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/proto)
+set(PROTO_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/proto)
 set(PROTO_FILE ${PROTO_DIR}/kv.proto)
 
 set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 file(MAKE_DIRECTORY ${GEN_DIR})
 
-get_target_property(PROTOC_EXE protobuf::protoc LOCATION)
-get_target_property(GRPC_CPP_PLUGIN_EXE gRPC::grpc_cpp_plugin LOCATION)
+# More robust than LOCATION:
+set(PROTOC_EXE          $<TARGET_FILE:protobuf::protoc>)
+set(GRPC_CPP_PLUGIN_EXE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 set(GEN_SRCS
         ${GEN_DIR}/kv.pb.cc
@@ -42,29 +53,59 @@ add_custom_command(
         VERBATIM
 )
 
-
 add_library(kv_proto ${GEN_SRCS} ${GEN_HDRS})
-target_include_directories(kv_proto PUBLIC "${GEN_DIR}")
+target_include_directories(kv_proto PUBLIC ${GEN_DIR})
 target_link_libraries(kv_proto PUBLIC gRPC::grpc++ protobuf::libprotobuf)
+
+# =======================
+# CORE LIB (PROD CODE)
+# =======================
+add_library(kv_core
+        src/kvstore/SynchronizedStorage.cpp
+        src/kvstore/StorageCore.cpp
+        src/server/ServerService.cpp
+)
+
+# So tests/exes can do: #include "kvstore/StorageCore.h"
+target_include_directories(kv_core PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(kv_core PUBLIC kv_proto)
 
 # =======================
 # EXECUTABLES
 # =======================
-add_executable(DistributedKV src/main.cpp
-        src/kvstore/SynchronizedStorage.cpp
-        src/kvstore/SynchronizedStorage.h
-        src/kvstore/StorageCore.cpp
-        src/kvstore/StorageCore.h
-        src/kvstore/IStorage.h
-        src/server/ServerService.cpp
-        src/server/ServerService.h
+add_executable(DistributedKV
+        src/main.cpp
 )
-target_link_libraries(DistributedKV PRIVATE kv_proto)
+target_link_libraries(DistributedKV PRIVATE kv_core)
 
-add_executable(kv_client src/client/client.cpp)
+add_executable(kv_client
+        src/client/client.cpp
+)
 target_link_libraries(kv_client PRIVATE kv_proto)
 
+# =======================
+# TESTS
+# =======================
+add_executable(kv_tests
+        test/BASIC_GET_SET_REMOVE_SHOULD_WORK.cpp
+)
+target_link_libraries(kv_tests PRIVATE
+        GTest::gtest
+        GTest::gtest_main
+        kv_core
+)
+
+add_test(NAME kv_tests COMMAND kv_tests)
+
+# =======================
+# WARNINGS (MSVC)
+# =======================
 if (MSVC)
-    target_compile_options(kv_client PRIVATE /W4 /permissive-)
+    target_compile_options(kv_client      PRIVATE /W4 /permissive-)
     target_compile_options(DistributedKV PRIVATE /W4 /permissive-)
+    target_compile_options(kv_tests      PRIVATE /W4 /permissive-)
+    target_compile_options(kv_core       PRIVATE /W4 /permissive-)
 endif()

@@ -1,7 +1,5 @@
 {
-  "name": "distributedkv",
-  "version-string": "0.1.0",
-  "dependencies": [
-    "grpc"
-  ]
+  "name" : "distributedkv",
+  "version-string" : "0.1.0",
+  "dependencies" : [ "grpc", "gtest"]
 }
