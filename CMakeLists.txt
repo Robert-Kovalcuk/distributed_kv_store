@@ -90,7 +90,8 @@ target_link_libraries(kv_client PRIVATE kv_proto)
 # TESTS
 # =======================
 add_executable(kv_tests
-        test/BASIC_GET_SET_REMOVE_SHOULD_WORK.cpp
+        test/storage_unit_test.cpp
+        test/grpc_integration_test.cpp
 )
 target_link_libraries(kv_tests PRIVATE
         GTest::gtest
